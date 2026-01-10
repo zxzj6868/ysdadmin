@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Test</title>
+    <script src="js/supabase.js"></script>
+</head>
+<body>
+    <h1>Supabase Connection Test</h1>
+    <div id="status" style="padding:20px;border:1px solid #ccc">Initializing...</div>
+    
+    <script>
+        var statusDiv = document.getElementById('status');
+        
+        // 1. Check if Library Loaded
+        if (typeof supabase === 'undefined') {
+            statusDiv.innerHTML = '<span style="color:red">❌ ERROR: supabase.js failed to load.</span><br>Please check if js/supabase.js exists.';
+        } else {
+            statusDiv.innerHTML = '<span style="color:green">✅ SUCCESS: supabase.js loaded.</span>';
+            
+            // 2. Check Config
+            var url = localStorage.getItem('supabase_url');
+            var key = localStorage.getItem('supabase_key');
+            
+            statusDiv.innerHTML += '<br><br>Checking Config...';
+            if (!url || !key) {
+                statusDiv.innerHTML += '<br><span style="color:orange">⚠️ WARNING: No config found in localStorage.</span>';
+            } else {
+                statusDiv.innerHTML += '<br><span style="color:green">✅ Config found.</span>';
+                statusDiv.innerHTML += '<br>URL: ' + url;
+                
+                // 3. Test Connection
+                try {
+                    var client = supabase.createClient(url, key);
+                    statusDiv.innerHTML += '<br><br>Testing Connection...';
+                    
+                    client.from('levels').select('count', { count: 'exact', head: true })
+                        .then(res => {
+                            if (res.error) {
+                                statusDiv.innerHTML += '<br><span style="color:red">❌ Connection Failed: ' + res.error.message + '</span>';
+                            } else {
+                                statusDiv.innerHTML += '<br><span style="color:green">✅ Connection Successful! DB is reachable.</span>';
+                            }
+                        });
+                        
+                } catch (e) {
+                    statusDiv.innerHTML += '<br><span style="color:red">❌ Init Error: ' + e.message + '</span>';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英语速达 - 后台管理系统</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <!-- Supabase JS (Local) -->
+    <script src="js/supabase.js"></script>
+    <!-- Chart.js for Stats -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>YSD Admin</h2>
+            </div>
+            <nav class="menu">
+                <div class="menu-item active" onclick="switchTab('dashboard')">📊 数据概览</div>
+                <div class="menu-item" onclick="switchTab('sync')">📚 同步学管理</div>
+                <div class="menu-item" onclick="switchTab('self')">📖 自选课管理</div>
+                <div class="menu-item" onclick="switchTab('custom')">🎯 定制内容</div>
+                <div class="menu-item" onclick="switchTab('ear')">👂 磨耳朵资源</div>
+                <div class="menu-item" onclick="switchTab('users')">👑 会员/用户</div>
+                <div class="menu-item" onclick="switchTab('settings')">⚙️ 系统设置</div>
+            </nav>
+            <div class="logout" onclick="alert('退出登录')">退出系统</div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <h3 id="page-title">数据概览</h3>
+                <div class="user-info">Admin User</div>
+            </header>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="content-panel active">
+                <div class="stats-cards">
+                    <div class="card">
+                        <div class="card-num">1,240</div>
+                        <div class="card-label">总用户数</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-num">356</div>
+                        <div class="card-label">今日活跃</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-num">8,902</div>
+                        <div class="card-label">累计学习时长(h)</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-num">VIP</div>
+                        <div class="card-label">128 位会员</div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Users/Members Tab -->
+            <div id="users" class="content-panel">
+                <div class="panel-actions">
+                    <input type="text" placeholder="搜索手机号/昵称..." class="search-input">
+                    <button class="btn-primary">导出会员数据</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>昵称</th>
+                            <th>手机号</th>
+                            <th>会员类型</th>
+                            <th>到期时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Sync Study Tab -->
+            <div id="sync" class="content-panel">
+                <div class="panel-actions">
+                    <button class="btn-primary" onclick="showModal('add-sync-modal')">+ 新增同步课程</button>
+                </div>
+                <div class="content-tree" id="sync-tree">
+                    <!-- Loaded via JS -->
+                    <div style="padding:20px;text-align:center;color:#999">正在加载课程结构...</div>
+                </div>
+            </div>
+
+            <!-- Self Study Tab -->
+            <div id="self" class="content-panel">
+                 <div class="panel-actions">
+                    <button class="btn-primary" onclick="alert('新增自选分类')">+ 新增分类/书籍</button>
+                </div>
+                <div class="grid-container" id="self-grid">
+                     <!-- Loaded via JS -->
+                     <div class="card">
+                        <div class="card-title">幼儿启蒙</div>
+                        <button class="btn-text">管理书籍</button>
+                     </div>
+                     <div class="card">
+                        <div class="card-title">小学巩固</div>
+                        <button class="btn-text">管理书籍</button>
+                     </div>
+                </div>
+            </div>
+
+            <!-- Custom Content Tab -->
+            <div id="custom" class="content-panel">
+                <h3>定制模块管理</h3>
+                <div style="margin-top:20px">
+                    <h4>成长轨迹 (视频/语音)</h4>
+                    <button class="btn-small" style="margin:10px 0">+ 上传成长记录</button>
+                    <table class="data-table">
+                        <thead><tr><th>标题</th><th>类型</th><th>日期</th><th>操作</th></tr></thead>
+                        <tbody><tr><td colspan="4" align="center">暂无记录</td></tr></tbody>
+                    </table>
+                </div>
+                <div style="margin-top:30px">
+                    <h4>AI 直播 (分屏内容)</h4>
+                    <button class="btn-small" style="margin:10px 0">+ 配置直播课程</button>
+                    <table class="data-table">
+                        <thead><tr><th>课程名</th><th>视频源</th><th>文档源</th><th>操作</th></tr></thead>
+                        <tbody><tr><td colspan="4" align="center">暂无直播配置</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Ear Tab -->
+            <div id="ear" class="content-panel">
+                <div class="panel-actions">
+                    <button class="btn-primary">+ 上传资源</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>标题</th>
+                            <th>分类</th>
+                            <th>时长</th>
+                            <th>播放量</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Unit 1 - Hello</td>
+                            <td>小学/通用</td>
+                            <td>03:20</td>
+                            <td>1,200</td>
+                            <td><button class="btn-text">删除</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Settings Tab -->
+            <div id="settings" class="content-panel">
+                <div class="form-group">
+                    <label>Supabase URL</label>
+                    <input type="text" id="supabase-url" class="input-field" placeholder="https://xyz.supabase.co">
+                </div>
+                <div class="form-group">
+                    <label>Supabase Key</label>
+                    <input type="password" id="supabase-key" class="input-field" placeholder="public-anon-key">
+                </div>
+                <button class="btn-primary" onclick="saveConfig()">保存配置</button>
+                <p style="margin-top:10px;color:#666;font-size:12px">配置后可连接真实数据库 (当前为演示模式)</p>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="add-sync-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('add-sync-modal')">&times;</span>
+            <h3>新增同步课程阶段</h3>
+            <div class="form-group">
+                <label>阶段名称 (如: 高中)</label>
+                <input type="text" id="new-level-name" class="input-field">
+            </div>
+            <button class="btn-primary" onclick="addSyncLevel()">确认添加</button>
+        </div>
+    </div>
+
+    <div id="add-grade-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('add-grade-modal')">&times;</span>
+            <h3>新增年级</h3>
+            <input type="hidden" id="target-level-id">
+            <div class="form-group">
+                <label>年级名称 (如: 一年级上)</label>
+                <input type="text" id="new-grade-name" class="input-field">
+            </div>
+            <button class="btn-primary" onclick="addGrade()">确认添加</button>
+        </div>
+    </div>
+
+    <!-- New Modals for Unit/Lesson/Dialogue -->
+    <div id="add-unit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('add-unit-modal')">&times;</span>
+            <h3>新增单元</h3>
+            <div class="form-group">
+                <label>单元名称 (如: Unit 1)</label>
+                <input type="text" id="new-unit-name" class="input-field">
+            </div>
+            <div class="form-group">
+                <label>单元标题 (如: Hello World)</label>
+                <input type="text" id="new-unit-title" class="input-field">
+            </div>
+            <button class="btn-primary" onclick="addUnit()">确认添加</button>
+        </div>
+    </div>
+
+    <div id="add-lesson-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('add-lesson-modal')">&times;</span>
+            <h3>新增课程</h3>
+            <div class="form-group">
+                <label>课程名称 (如: Lesson 1)</label>
+                <input type="text" id="new-lesson-name" class="input-field">
+            </div>
+            <button class="btn-primary" onclick="addLesson()">确认添加</button>
+        </div>
+    </div>
+
+    <div id="add-dialogue-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('add-dialogue-modal')">&times;</span>
+            <h3>添加对话</h3>
+            <div class="form-group">
+                <label>角色 (Speaker)</label>
+                <select id="diag-speaker" class="input-field">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="Teacher">Teacher</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>内容 (Text)</label>
+                <textarea id="diag-text" class="input-field" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>高亮 (格式: 单词:颜色, 单词:bold)</label>
+                <input type="text" id="diag-highlights" class="input-field" placeholder="e.g. apple:red, banana:bold">
+            </div>
+            <button class="btn-primary" onclick="addDialogue()">添加</button>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>
