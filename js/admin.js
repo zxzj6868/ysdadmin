@@ -27,7 +27,22 @@ function initChart() {
 
 // Init
 document.addEventListener('DOMContentLoaded', function() {
-    initChart();
+    console.log("DOM loaded. Checking dependencies...");
+
+    // Safe Chart Init
+    if(typeof Chart !== 'undefined') {
+        try { initChart(); } catch(e) { console.error("Chart init failed:", e); }
+    } else {
+        console.warn("Chart.js not loaded. Charts will not be displayed.");
+    }
+    
+    // Check Supabase SDK
+    if(typeof window.supabase === 'undefined') {
+        console.error("CRITICAL: Supabase SDK object not found on window!");
+        // If SDK failed to load due to syntax error in file, we can't do much but alert
+        alert("系统加载失败: 核心组件损坏。正在尝试自动修复...");
+        return;
+    }
     
     // Load config if exists
     var savedUrl = localStorage.getItem('supabase_url');
