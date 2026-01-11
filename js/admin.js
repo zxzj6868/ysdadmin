@@ -195,6 +195,11 @@ async function addSyncLevel() {
     var name = document.getElementById('new-level-name').value;
     if(!name) return alert('请输入名称');
     
+    if(!supabase) {
+        alert("请先在“系统设置”中配置数据库连接！");
+        return;
+    }
+    
     const { error } = await supabase.from('levels').insert({ name: name, type: 'sync' });
     
     if(error) {
@@ -208,6 +213,8 @@ async function addSyncLevel() {
 
 // Data Actions: Add Grade
 async function addGrade() {
+    if(!supabase) return alert("请先配置数据库连接！");
+
     var name = document.getElementById('new-grade-name').value;
     var levelId = document.getElementById('target-level-id').value;
     
@@ -284,6 +291,8 @@ async function addUnit() {
     var title = document.getElementById('new-unit-title').value;
     if(!name) return alert('请输入名称');
     
+    if(!supabase) return alert("请先配置数据库连接！");
+    
     const { error } = await supabase.from('units').insert({ name, title, grade_id: currentGrade.id });
     if(error) alert(error.message);
     else {
@@ -338,6 +347,8 @@ async function addLesson() {
     var name = document.getElementById('new-lesson-name').value;
     if(!name) return alert('请输入名称');
     
+    if(!supabase) return alert("请先配置数据库连接！");
+
     const { error } = await supabase.from('lessons').insert({ name, unit_id: currentUnit.id });
     if(error) alert(error.message);
     else {
@@ -418,6 +429,8 @@ async function addDialogue() {
             }
         });
     }
+
+    if(!supabase) return alert("请先配置数据库连接！");
 
     const { error } = await supabase.from('dialogues').insert({
         lesson_id: currentLesson.id,
