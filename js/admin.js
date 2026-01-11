@@ -537,6 +537,7 @@ function switchTab(tabId) {
     if(tabId === 'users') fetchUsers();
     if(tabId === 'ear') fetchEarResources();
     if(tabId === 'dashboard') fetchDashboardStats();
+    if(tabId === 'sync') resetSyncView();
 }
 
 function getTabName(id) {
