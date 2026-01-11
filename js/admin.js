@@ -43,11 +43,21 @@ document.addEventListener('DOMContentLoaded', function() {
         alert("系统加载失败: 核心组件损坏。正在尝试自动修复...");
         return;
     }
-    
-    // Load config if exists
+
+    // Force init from localStorage immediately on load
     var savedUrl = localStorage.getItem('supabase_url');
     var savedKey = localStorage.getItem('supabase_key');
+    if (savedUrl && savedKey) {
+        console.log("Found config in localStorage, auto-initializing...");
+        try {
+            supabase = window.supabase.createClient(savedUrl.trim(), savedKey.trim());
+            console.log("Global supabase object created:", supabase);
+        } catch(e) {
+            console.error("Auto-init failed:", e);
+        }
+    }
     
+    // Load config if exists
     if(savedUrl && savedKey) {
         document.getElementById('supabase-url').value = savedUrl;
         document.getElementById('supabase-key').value = savedKey;
@@ -55,13 +65,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Initialize Supabase
         try {
             if(window.supabase) {
-                console.log("Creating Supabase client with:", savedUrl);
-                // Clean input to avoid invisible chars
-                const cleanUrl = savedUrl.trim();
-                const cleanKey = savedKey.trim();
-                
-                supabase = window.supabase.createClient(cleanUrl, cleanKey);
-                console.log("Supabase initialized successfully");
+                // Already initialized above, but re-logging for debug
+                console.log("Config loaded into UI");
                 
                 // Auto-load data if on specific tabs
                 if(document.getElementById('users').classList.contains('active')) fetchUsers();
