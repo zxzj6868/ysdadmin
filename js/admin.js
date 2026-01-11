@@ -55,8 +55,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Initialize Supabase
         try {
             if(window.supabase) {
-                supabase = window.supabase.createClient(savedUrl, savedKey);
-                console.log("Supabase initialized");
+                console.log("Creating Supabase client with:", savedUrl);
+                // Clean input to avoid invisible chars
+                const cleanUrl = savedUrl.trim();
+                const cleanKey = savedKey.trim();
+                
+                supabase = window.supabase.createClient(cleanUrl, cleanKey);
+                console.log("Supabase initialized successfully");
                 
                 // Auto-load data if on specific tabs
                 if(document.getElementById('users').classList.contains('active')) fetchUsers();
@@ -78,8 +83,9 @@ function saveConfig() {
     var key = document.getElementById('supabase-key').value;
     
     if(url && key) {
-        localStorage.setItem('supabase_url', url);
-        localStorage.setItem('supabase_key', key);
+        // Trim whitespace!
+        localStorage.setItem('supabase_url', url.trim());
+        localStorage.setItem('supabase_key', key.trim());
         alert('配置已保存！正在刷新页面以连接数据库...');
         location.reload(); 
     } else {
